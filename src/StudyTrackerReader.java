@@ -1,5 +1,3 @@
-package sadness;
-
 
 
 /*
@@ -11,13 +9,14 @@ package sadness;
 import java.sql.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 /**
  * This class contains all methods that communicate with the SQL database.
  * @version 12/10/2020
  * @author Liam Fifield
  */
-public class StudyTrackerReader2
+public class StudyTrackerReader 
 {
     /**
      * getConnection establishes a connection to the SQL database
@@ -89,46 +88,58 @@ public class StudyTrackerReader2
     }
     
     /**
-     * Used for the searchMethod. Prints out all students that match user input.
-     * @param input
-     * @param query 
+     * Used for the searchMethod.Prints out all students that match user input.
+     * @param last
+     * @param first
      */
-    public void printStudents(String input, String query)
+    public String printStudents(String last, String first)
     {
         Connection con =null;
         Statement stmt = null;
         ResultSet rs = null;
-        int count = 0;
-        String sql ="SELECT*FROM Students WHERE "+input+ " LIKE '"+query+"';";
+        String lName;
+        String fName;
+        String date;
+        String age;
+        String colour;
+        String comp;
+        String opt;
+        String badge;
+        String search="";
+        String sql ="SELECT*FROM Students WHERE LastName='"+last+"' AND FirstName='"+first+"';";
         try
         {
             con=getConnection();
             stmt= con.createStatement();
             rs=stmt.executeQuery(sql);
             
-            while (rs.next())
+            if (rs.next())
             {
-                Student student = new Student(null, null, null, 0, null,0,0,null);
-                student.setLName(rs.getString("LastName"));
-                student.setFName(rs.getString("FirstName"));
-                student.setDOB(rs.getString("DateOfBirth"));
-                student.setAge(rs.getInt("Age"));
-                student.setColour(rs.getString("ColourSixGroup"));
-                student.setoTest(rs.getInt("OptionalTests"));
-                student.setcTest(rs.getInt("CompulsoryTests"));
-                student.setBadge(rs.getString("Badge"));
-                System.out.println(student.toString());
-                count++;
+                lName = rs.getString("LastName");
+                fName = rs.getString("FirstName");
+                date = rs.getString("DateOfBirth");
+                age = rs.getString("Age");
+                colour = rs.getString("ColourSixGroup");
+                comp= rs.getString("CompulsoryTests");
+                opt= rs.getString("OptionalTests");
+                badge = rs.getString("Badge");
+                search = "Student: "+fName+" "+lName+"   DateOfBirth: "+ date+ "   Age: "+ age 
+                        + "   ColourSixGroup: "+colour+ "   CompulsoryTests: "+comp+"   OptionalTests: "
+                        +opt+"   Badge: "+badge;
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(null, "Student not found");
             }
             rs.close();
             stmt.close();
             con.close();
-            System.out.println(count+" results found.");
         }
         catch(SQLException e)
         {
             e.printStackTrace();
         }  
+        return search;
     }
     
     /**
@@ -148,16 +159,7 @@ public class StudyTrackerReader2
             
             while (rs.next())
             {
-                Student student = new Student(null, null, null, 0, null, 0, 0,null);
-                student.setLName(rs.getString("LastName"));
-                student.setFName(rs.getString("FirstName"));
-                student.setDOB(rs.getString("DateOfBirth"));
-                student.setAge(rs.getInt("Age"));
-                student.setColour(rs.getString("ColourSixGroup"));
-                student.setoTest(rs.getInt("OptionalTests"));
-                student.setcTest(rs.getInt("CompulsoryTests"));
-                student.setBadge(rs.getString("Badge"));
-                System.out.println("\n"+student.toString());
+                
             }
             rs.close();
             stmt.close();
@@ -182,43 +184,30 @@ public class StudyTrackerReader2
         Connection con =null;
         Statement stmt = null;
         ResultSet rs = null;
-        String lName="";
-        String fName="";
-        String load ="SELECT*FROM Students;";
-        Boolean exists = false;
-        //StudyTrackerMain stm = new StudyTrackerMain();
-        MyGui2 m = new MyGui2();
+        Statement stmt2 = null;
+        String load ="SELECT*FROM Students WHERE LastName = '"+delNameLast+"' AND FirstName = '"+ delNameFirst+"';";
+        MyGui m = new MyGui();
         try
         {
             con=getConnection();
             stmt= con.createStatement();
             rs=stmt.executeQuery(load);
-            while (rs.next())
+            if (rs.next())
             {
-                
-                lName=(rs.getString("LastName"));
-                fName=(rs.getString("FirstName"));
-                
-                
-                if ((lName.matches(delNameLast))&&(fName.matches(delNameFirst)))
-                {
-                    exists=true;
-                }
+                String choice="UPDATE Students SET "+query+"='"+ans+"' WHERE LastName = '"+delNameLast+"' AND FirstName = '"+ delNameFirst+"';";
+                con=getConnection();
+                stmt2= con.createStatement();
+                stmt2.executeUpdate(choice);
+                stmt2.close();
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(null, "Student not Found");
             }
             rs.close();
             stmt.close();
             con.close();
         
-            if (exists)
-            {
-                String choice="UPDATE Students SET "+query+"='"+ans+"' WHERE LastName = '"+delNameLast+"' AND FirstName = '"+ delNameFirst+"';";
-                System.out.println(choice);
-                con=getConnection();
-                stmt= con.createStatement();
-                //stmt.executeUpdate(choice);
-                stmt.close();
-                con.close();
-            }
         }
         catch(SQLException e)
         {
@@ -272,69 +261,46 @@ public class StudyTrackerReader2
         return list;
     }
     
-    public void markAttendance(String date, String fName, String lName, String ans)
+    public void addAttendance(String date)
     {
         Connection con =null;
         Statement stmt = null;
-        Statement stmt2 = null;
-        ResultSet rs = null;
-        Scanner s = new Scanner(System.in);
-        String last;
-        String first;
-        String here;
-        int key=0;
-        MyGui2 mg = new MyGui2();
-        String absent;
-        String sql ="SELECT*FROM Students;";
+        String sql= "ALTER TABLE Attendance ADD `"+date+"` varchar(10);";
         try
         {   
             con=getConnection();
             stmt= con.createStatement();
-            stmt2= con.createStatement();
-            rs=stmt.executeQuery(sql);
-            
-            while (rs.next())
-            {
-                last=(rs.getString("LastName"));
-                first=(rs.getString("FirstName"));
-                System.out.println("Has "+first+" "+last+ " attended? [yes] [no]");
-                key=0;
-                if (first.matches(fName) && last.matches(lName))
-                {
-                while(key!=1)
-                {
-                    switch(ans)
-                    {
-                        case "yes":
-                            here="UPDATE Attendance SET "+date+"='Attended' WHERE LastName = '"+last+"' AND FirstName = '"+ first+"';";
-                            stmt2.executeUpdate(here);  
-                            key=1;
-                            break;
-                        
-                        case"no":
-                            absent="UPDATE Attendance SET "+date+"='Absent' WHERE LastName = '"+last+"' AND FirstName = '"+ first+"';";
-                            stmt2.executeUpdate(absent);
-                            key=1;
-                            break;
-                            
-                        default:
-                            System.out.println("Please enter [yes] or [no].");
-                            break;
-                    }
-                    
-                }
-                }
-            }
-            rs.close();
+            stmt.executeUpdate(sql);
             stmt.close();
-            stmt2.close();
             con.close();
         }
         catch(SQLException e)
         {
             e.printStackTrace();
         }
-        System.out.println("The roll has been marked.");
+    }
+    
+    public void markAttendance(String date, String fName, String lName, Boolean a)
+    {
+        Connection con =null;
+        Statement stmt = null;
+        String sql;
+        MyGui mg = new MyGui();
+        String absent;
+        if (a) sql ="UPDATE Attendance SET `"+date+"`= 'Attended' WHERE LastName= '"+lName+"' AND FirstName= '"+fName+"';";
+        else sql ="UPDATE Attendance SET `"+date+"`= 'Absent' WHERE LastName= '"+lName+"' AND FirstName= '"+fName+"';";
+        try
+        {   
+            con=getConnection();
+            stmt= con.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            con.close();
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+        }
     }
     
     
@@ -396,7 +362,7 @@ public class StudyTrackerReader2
         String date;
         String topic;
         String staff;
-        MyGui2 m= new MyGui2();
+        MyGui m= new MyGui();
         try
         {
             con=getConnection();
@@ -421,12 +387,8 @@ public class StudyTrackerReader2
         m.schedule();
     }
     
-    /**
-     * This method allows topics to be marked (in the Topics table in SQL)
-     * using user input.
-     * @param date
-     * @param topic 
-     */
+
+    
     public String getTopic(String date, String topic)
     {
         Connection con =null;
@@ -441,7 +403,6 @@ public class StudyTrackerReader2
         String ans;
         String list = "";
         Boolean compulsory=null;
-        Scanner s= new Scanner(System.in);
         try
         {
             con=getConnection();
@@ -454,7 +415,8 @@ public class StudyTrackerReader2
                 last=(rs.getString("LastName"));
                 first=(rs.getString("FirstName"));
                 compulsory=rs.getBoolean("Compulsory");
-                list = last + "-" + last + "#";
+                list = list + (first + "-" + last + "#");
+                System.out.println("Test");
             }
             rs.close();
             stmt.close();
@@ -467,21 +429,20 @@ public class StudyTrackerReader2
         return list;
     }
     
-    public void markTopic(String date, String topic)
+    public void markTopic(String date, String topic, Boolean a)
     {
         Connection con =null;
         Statement stmt = null;
         Statement stmt2 = null;
         ResultSet rs = null;
         String sql ="SELECT*FROM Topics WHERE Topic='"+topic+
-                "' AND Date='"+date+"' AND Completed='No'" +";";
+                "' AND Date='"+date+"';";
         String update;
         String last;
         String first;
         String ans;
-        MyGui2 mg = new MyGui2();
+        MyGui mg = new MyGui();
         Boolean compulsory=null;
-        Scanner s= new Scanner(System.in);
         int key;
         try
         {
@@ -495,31 +456,15 @@ public class StudyTrackerReader2
                 last=(rs.getString("LastName"));
                 first=(rs.getString("FirstName"));
                 compulsory=rs.getBoolean("Compulsory");
-                key=0;
-                while(key!=1)
+                if (a)
                 {
-                    System.out.println("Has "+first+" "+last+ " completed this task? [yes] [no]");
-                    ans=mg.mark;
-                    switch(ans)
-                    {
-                        case "yes":
-                            update="UPDATE Topics SET Completed='Yes' WHERE LastName = '"+last+"' AND FirstName = '"+ first+"'AND Topic='"+topic+"' AND Date='"+date+"';";
-                            stmt2.executeUpdate(update);
-                            testCounter(last, first, compulsory);
-                            key=1;
-                            break;
-                        
-                        case"no":
-                            key=1;
-                            break;
-                            
-                        default:
-                            System.out.println("Please enter [yes] or [no].");
-                            break;
-                    }
+                    sql ="UPDATE Topics SET Completed='yes' WHERE LastName= '"+last+"' AND FirstName= '"+first+"' AND Date='"+date+"' AND Topic='"+topic+"';";
+                    stmt2.executeUpdate(sql);
+                    testCounter(last,first,compulsory);
                 }
             }
             rs.close();
+            stmt2.close();
             stmt.close();
             con.close();
         }
@@ -528,7 +473,7 @@ public class StudyTrackerReader2
             e.printStackTrace();
         }
     }
-    
+
     /**
      * This method increases the tests completed variables 
      * whenever a test is completed.
@@ -599,7 +544,7 @@ public class StudyTrackerReader2
         String last;
         String first;
         String badge;
-        MyGui2 m = new MyGui2();
+        MyGui m = new MyGui();
         String sql ="SELECT*FROM Students;";
         try
         {
@@ -627,7 +572,7 @@ public class StudyTrackerReader2
                             String upd="UPDATE Students SET Badge='Diamond' WHERE LastName = '"+last+"' AND FirstName = '"+ first+"';";
                             stmt2.executeUpdate(upd);
                             badge= "Diamond";
-                            m.badge(first, last, badge);
+                            JOptionPane.showMessageDialog(null, first+" "+last+" has just earned a "+badge+" badge!");
                         }
                         break;
                         
@@ -637,7 +582,7 @@ public class StudyTrackerReader2
                             String upd="UPDATE Students SET Badge='Super Platinum' WHERE LastName = '"+last+"' AND FirstName = '"+ first+"';";
                             stmt2.executeUpdate(upd);
                             badge= "Super Platinum";
-                            m.badge(first, last, badge);
+                            JOptionPane.showMessageDialog(null, first+" "+last+" has just earned a "+badge+" badge!");
                         }
                         break;
                         
@@ -651,7 +596,7 @@ public class StudyTrackerReader2
                             String upd="UPDATE Students SET Badge='Gold' WHERE LastName = '"+last+"' AND FirstName = '"+ first+"';";
                             stmt2.executeUpdate(upd);
                             badge= "Gold";
-                            m.badge(first, last, badge);
+                            JOptionPane.showMessageDialog(null, first+" "+last+" has just earned a "+badge+" badge!");
                         }
                         break;
                 }
@@ -685,7 +630,8 @@ public class StudyTrackerReader2
         String date;
         double count=0;
         double percent;
-        MyGui2 m = new MyGui2();
+        int exists=0;
+        MyGui m = new MyGui();
         try
         {
             con=getConnection();
@@ -696,6 +642,7 @@ public class StudyTrackerReader2
             
             while (rs.next())
             {
+                exists++;
                 topic=rs.getString("Topic");
                 date=rs.getString("Date");
                 set="SELECT Topic, Completed FROM Topics WHERE Topic='"+topic+"';";
@@ -724,7 +671,7 @@ public class StudyTrackerReader2
                 yes=0;
                 rs2.close();
             }
-            
+            if (exists==0)JOptionPane.showMessageDialog(null, "No topics were found in the system.");
 
             rs.close();
             stmt.close();
@@ -754,7 +701,7 @@ public class StudyTrackerReader2
         String sSecond="";
         String sThird="";
         int tmp;
-        MyGui2 m = new MyGui2();
+        MyGui m = new MyGui();
         int tmp2;
         String sql ="SELECT CompulsoryTests, OptionalTests, FirstName, LastName FROM Students;";
         try
@@ -769,6 +716,8 @@ public class StudyTrackerReader2
                 tmp2=tmp+rs.getInt("OptionalTests");
                 if(tmp2>first)
                 {
+                    second=first;
+                    sSecond=sFirst;
                     first=tmp2;
                     fName=rs.getString("FirstName");
                     lName=rs.getString("LastName");
@@ -777,6 +726,8 @@ public class StudyTrackerReader2
                 }
                 else if(tmp2>second)
                 {
+                    third=second;
+                    sThird=sSecond;
                     second=tmp2;
                     fName=rs.getString("FirstName");
                     lName=rs.getString("LastName");

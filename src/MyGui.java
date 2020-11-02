@@ -1,5 +1,3 @@
-package sadness;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -27,14 +25,15 @@ import java.awt.event.KeyListener;
 import java.util.*;
 import java.lang.*;
 import static java.lang.Integer.parseInt;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
-public class MyGui2 extends JFrame implements ActionListener
+public class MyGui extends JFrame implements ActionListener
 {
-    final StudyTrackerReader2 str = new StudyTrackerReader2();
+    final StudyTrackerReader str = new StudyTrackerReader();
     private JFrame frame = new JFrame("StudentTracker");
     final ButtonListener listener = new ButtonListener();
     final int gap = 50;
@@ -77,24 +76,39 @@ public class MyGui2 extends JFrame implements ActionListener
     /**
      * attendMethod
      */
-    JLabel att1;
+    //set date
+    JLabel attDat1;
+    JLabel setAttDat;
+    JTextField attDat420;
+    JButton attNext;
+    String date69 = "";
+    //mark
+    
+    String x;
+    String yarr[];
+    String attName;
+    int j=0;
+    
     JLabel lastName1;
     JTextField last1;
-    JLabel firstName1;
+    JLabel firstName1 = new JLabel("", SwingConstants.CENTER);
     JTextField first1;
     JLabel attDat;
     JTextField dat1;
-    JButton addAttend = new JButton("Attended");
-    JButton addAbsent = new JButton("Absent");
+    private JButton addAttend;
+    private JButton addAbsent;
     String attList1;
     String[] attList2arr;
     List<String> attList2 = new ArrayList<>();
     List<String> y = new ArrayList<>();
+    int z = 69;
     String[][] attList3;
     String attFName;
     String attLName;
-    String answer = "";
+    Boolean answer = true;
     Boolean flicker= null;
+    Boolean slower = true;
+    
     /**
      * Topic Method
      */
@@ -116,8 +130,24 @@ public class MyGui2 extends JFrame implements ActionListener
     private JLabel compL;
     private Boolean comp = true;
     //Mark
+    JLabel topDat1;
+    JLabel setTopDat;
+    JTextField topDat420;
+    JLabel setTopTop;
+    JTextField topTop420;
+    JButton topNext;
+    String topDate69;
+    String topTop69;
+    String topx;
+    String topyarr[];
+    String topName;
+    List<String> topList2 = new ArrayList<>();
+    List<String> topy = new ArrayList<>();
+    JLabel tFirstName1 = new JLabel("", SwingConstants.CENTER);
+    int k=0;
+    Boolean topFlicker;
+    
     JLabel top1;
-    JLabel tFirstName1;
     JLabel topDat;
     JTextField dat2;
     JLabel topNam;
@@ -126,7 +156,7 @@ public class MyGui2 extends JFrame implements ActionListener
     JButton topMarkFail = new JButton("Failure");
     String topList1;
     String[] topList2arr;
-    List<String> topList2 = new ArrayList<>();
+    
     String mark = "";  
     
     
@@ -165,6 +195,13 @@ public class MyGui2 extends JFrame implements ActionListener
     private String eLastS;
     private String eFirstS;
     
+    /**
+     * Search method
+     */
+    private JButton confirmS;
+    private JTextField iLast;
+    private JTextField iFirst;
+    private JTextField reply;
     
     private void initialisation()
     {
@@ -236,11 +273,7 @@ public class MyGui2 extends JFrame implements ActionListener
         frame.setVisible(true);
     }
     
-    public void badge(String first, String last, String badge)
-    {
-        notify.setText(first+" "+ last + " has just earned a "+badge+ "!");
-        
-    }
+
     
     public void difficult (double percent, String topic, String date)
     {
@@ -482,53 +515,138 @@ public class MyGui2 extends JFrame implements ActionListener
         
         
     }
+    
+    private void inpTopicMark()
+    {
+        JPanel inpTopUser = new JPanel(new GridLayout(14,0));
+        inpTopUser.setBorder(BorderFactory.createEmptyBorder(0, gap, gap, gap));
+        
+        error.setForeground(Color.RED);
+        
+        topDat1 = new JLabel("Insert date of topic:", SwingConstants.CENTER);
+        error = new JLabel("", SwingConstants.CENTER);
+        setTopDat = new JLabel ("Insert required date:", SwingConstants.CENTER);
+        topDat420 = new JTextField("");
+        setTopTop = new JLabel ("Insert required topic:", SwingConstants.CENTER);
+        topTop420 = new JTextField("");
+        topNext = new JButton("Next");
+        
+        inpTopUser.add(topDat1);
+        inpTopUser.add(error);
+        inpTopUser.add(setTopDat);
+        inpTopUser.add(topDat420);
+        inpTopUser.add(setTopTop);
+        inpTopUser.add(topTop420);
+        inpTopUser.add(topNext);
+        topNext.addActionListener(listener);
+        inpTopUser.add(cancel);
+        
+        topDate69 = topDat420.getText();
+        topTop69 = topTop420.getText();
+        
+        frame.setContentPane(inpTopUser);
+        frame.pack();
+        frame.setVisible(true);
+    }
+    
     private void markTopicMethod()
     {
         JPanel topUser = new JPanel(new GridLayout(14,0));
         topUser.setBorder(BorderFactory.createEmptyBorder(0, gap, gap, gap));
         
         
-        topMarkPass.addActionListener(listener);
-        topMarkFail.addActionListener(listener);
-        error.setForeground(Color.RED);
         
-        topList1 = str.getTopic(dat2.getText(), top1.getText());
-        topList2arr = attList1.split("#");
+        error.setForeground(Color.RED);
+        error = new JLabel("");
+
+        topList1 = str.getTopic(topDat420.getText(), topTop420.getText());
+        if(topList1.matches(""))
+        {
+            JOptionPane.showMessageDialog(null, "Topic not found or all students have completed this topic.");
+            mainPage();
+        }
+        
+        
+        topList2arr = topList1.split("#");
         topList2 = Arrays.asList(topList2arr);
         
         top1 = new JLabel("Mark Pass or Fail", SwingConstants.CENTER);
-        error = new JLabel("", SwingConstants.CENTER);
-        topDat = new JLabel("Date in yyyy-mm-dd format:", SwingConstants.CENTER);
-        dat2 = new JTextField("");
-        topNam = new JLabel("Insert reqired topic:", SwingConstants.CENTER);
-        top2 = new JTextField("");
-        
         topUser.add(top1);
         topUser.add(error);
-        topUser.add(topDat);
-        topUser.add(dat2);
-        topUser.add(topNam);
-        topUser.add(top1);
+        topx = topList2.get(k);
+        topyarr = topx.split("-");
+        topy = Arrays.asList(topyarr);
+        topName = topy.get(0) + " " + topy.get(1);
+        tFirstName1 = new JLabel(topName, SwingConstants.CENTER);
+        topMarkPass = new JButton("Topic completed");
+        topMarkFail = new JButton("Topic not yet completed");
+        topMarkPass.addActionListener(listener);
+        topMarkFail.addActionListener(listener);
         
-        String x = "";
-        String[] yarr;
-        List<String> y = new ArrayList<>();
-        String attName;
-        for (int i = 0; i < attList2.size(); i++)
-        {
-            x = attList2.get(i);
-            yarr = x.split("-");
-            y = Arrays.asList(yarr);
-            attName = y.get(0) + " " + y.get(1);
-            tFirstName1 = new JLabel(attName, SwingConstants.CENTER);
-            topMarkPass = new JButton("Topic completed");
-            topMarkFail = new JButton("Topic not yet completed");
-        }
-        
-        str.markTopic(dat2.getText(), top1.getText());
-       
-        
+        topUser.add(tFirstName1);
+        topUser.add(topMarkPass);
+        topUser.add(topMarkFail);
         topUser.add(cancel);
+        frame.setContentPane(topUser);
+        frame.pack();
+        frame.setVisible(true);
+    }
+    
+    private void searchMethod()
+    {
+        JPanel searchP = new JPanel(new GridLayout(9,0));
+        searchP.setBorder(BorderFactory.createEmptyBorder(0, gap, gap, gap));
+        
+        JLabel searchL = new JLabel("Please fill in the following fields:", SwingConstants.CENTER);
+        JLabel iLastL = new JLabel("Last name:", SwingConstants.CENTER);
+        iLast = new JTextField("");
+        JLabel iFirstL = new JLabel("First name:", SwingConstants.CENTER);
+        iFirst = new JTextField("");
+        confirmS = new JButton("Search");
+        confirmS.addActionListener(listener);
+        reply = new JTextField("");
+        reply.setEditable(false);
+        
+        searchP.add(searchL);
+        searchP.add(error);
+        searchP.add(iLastL);
+        searchP.add(iLast);
+        searchP.add(iFirstL);
+        searchP.add(iFirst);
+        searchP.add(confirmS);
+        searchP.add(reply);
+        searchP.add(cancel);
+        
+        frame.setContentPane(searchP);
+        frame.pack();
+        frame.setVisible(true);
+    }
+    
+    private void setDateAtt()
+    {
+        JPanel attDatUser = new JPanel(new GridLayout(14,0));
+        attDatUser.setBorder(BorderFactory.createEmptyBorder(0, gap, gap, gap));
+        
+        error.setForeground(Color.RED);
+        
+        attDat1 = new JLabel("Insert attendance date:", SwingConstants.CENTER);
+        error = new JLabel("", SwingConstants.CENTER);
+        setAttDat = new JLabel ("Insert required date:", SwingConstants.CENTER);
+        attDat420 = new JTextField("");
+        attNext = new JButton("Next");
+        
+        attDatUser.add(attDat1);
+        attDatUser.add(error);
+        attDatUser.add(setAttDat);
+        attDatUser.add(attDat420);
+        attDatUser.add(attNext);
+        attNext.addActionListener(listener);
+        
+        date69 = attDat420.getText();
+        
+        frame.setContentPane(attDatUser);
+        frame.pack();
+        frame.setVisible(true);
     }
     
     private void attendMethod()
@@ -537,50 +655,32 @@ public class MyGui2 extends JFrame implements ActionListener
         attUser.setBorder(BorderFactory.createEmptyBorder(0, gap, gap, gap));
         
         
-        addAttend.addActionListener(listener);
-        addAbsent.addActionListener(listener);
-        error.setForeground(Color.RED);
         
+        error.setForeground(Color.RED);
+        error = new JLabel("");
         attList1 = str.getAttend();
         attList2arr = attList1.split("#");
         attList2 = Arrays.asList(attList2arr);
         
-        att1 = new JLabel("Insert attendance details", SwingConstants.CENTER);
-        error = new JLabel("", SwingConstants.CENTER);
-        attDat = new JLabel("Date in yyyy-mm-dd format:", SwingConstants.CENTER);
-        dat1 = new JTextField("");
-        String x = "";
-        String[] yarr;
-        String attName;
+        JLabel att1= new JLabel("Please mark the student as Attended or absent", SwingConstants.CENTER);
+        x = attList2.get(0);
+        yarr = x.split("-");
+        y = Arrays.asList(yarr);
+        attName = y.get(0) + " " + y.get(1);
+        firstName1.setText(attName);
         attUser.add(att1);
         attUser.add(error);
-        attUser.add(attDat);
-        attUser.add(dat1);
         addAttend = new JButton("Attended");
         addAbsent = new JButton("Absent");
-        firstName1 = new JLabel("", SwingConstants.CENTER);
-        attUser.add(cancel);
-        for (int i = 0; i < attList2.size(); i++)
-        {
-            
-            flicker=true;
-            x = attList2.get(i);
-            yarr = x.split("-");
-            y = Arrays.asList(yarr);
-            attName = y.get(0) + " " + y.get(1);
-            firstName1.setText(attName);
-           
-            attUser.add(firstName1);
-            attUser.add(addAttend);
-            attUser.add(addAbsent);
-            while (flicker == true)
-            {
-                
-            } 
-        }
-        
-        
+        addAttend.addActionListener(listener);
+        addAbsent.addActionListener(listener);
 
+
+           
+        attUser.add(firstName1);
+        attUser.add(addAttend);
+        attUser.add(addAbsent);
+        attUser.add(cancel);
         frame.setContentPane(attUser);
         frame.pack();
         frame.setVisible(true);
@@ -608,7 +708,7 @@ public class MyGui2 extends JFrame implements ActionListener
             
             if (event.getSource() == attend) 
             {
-                attendMethod();
+                setDateAtt();
             }
             
             if (event.getSource() == topic) 
@@ -617,15 +717,12 @@ public class MyGui2 extends JFrame implements ActionListener
             }
             if (event.getSource() == markTopic) 
             {
-                frame.setContentPane(topicCreate);
-                frame.pack();
-                frame.setVisible(true);
-                markTopicMethod();
+                inpTopicMark();
             }
             
             if (event.getSource() == search) 
             {
-                
+                searchMethod();
             }
             
             if (event.getSource() == edit) 
@@ -732,23 +829,122 @@ public class MyGui2 extends JFrame implements ActionListener
             /**
              * attend methods
              */
+            if (event.getSource() == attNext)
+            {
+                String daate = attDat420.getText();
+                Boolean good=true;
+                try
+                {
+                    String[] parts = daate.split("-");
+                    String year = parts[0];
+                    String month = parts[1];
+                    String day = parts[2];
+                }
+                catch(ArrayIndexOutOfBoundsException e)
+                {
+                    good=false;
+                    error.setText("Please ensure date contains only integers seperated with - (yyyy-mm-dd)");
+                }
+                if(attDat420.getText().equals(""))
+                {
+                    error.setText("Please fill out all fields");
+                    good=false;
+                }
+                else if (daate.length() != 10)
+                {
+                    good=false;
+                    error.setText("Please ensure date contains only integers seperated with - (yyyy-mm-dd)");
+                }
+                else if (daate.charAt(4) != '-' || daate.charAt(7) != '-')
+                {
+                    good=false;
+                    error.setText("Please ensure date contains only integers seperated with - (yyyy-mm-dd)");
+                } 
+                else if (good)
+                {
+                    str.addAttendance(daate);
+                    
+                    attendMethod();
+                }
+                
+            }
             if(event.getSource() == addAttend)
             {
-                answer = "yes";
-                str.markAttendance(mark, y.get(0), y.get(1), answer);
-                flicker = false;
+                date69 = attDat420.getText();
+                if(j==0)
+                {
+                    x = attList2.get(j);
+                    yarr = x.split("-");
+                    y = Arrays.asList(yarr);
+                    attName = y.get(0) + " " + y.get(1);
+                    str.markAttendance(date69, y.get(0), y.get(1), true);
+                    j++;
+                    System.out.println(j);
+                }
+                else
+                {
+                    j++;
+                    System.out.println(j);
+                    z = 71;
+                    str.markAttendance(date69, y.get(0), y.get(1), true);
+                    flicker = false;
+                    z = 69;
+                }
+                if (j == attList2.size())
+                {
+                    mainPage();
+                }
+                System.out.println(j);
+                System.out.println("yeet");
+                flicker=true;
+                x = attList2.get(j);
+                yarr = x.split("-");
+                y = Arrays.asList(yarr);
+                attName = y.get(0) + " " + y.get(1);
+                firstName1.setText(attName);
             }
             
             if(event.getSource() == addAbsent)
             {
-                answer = "no";
-                str.markAttendance(mark, y.get(0), y.get(1), answer);
-                flicker = false;
+                date69 = attDat420.getText();
+                if(j==0)
+                {
+                    x = attList2.get(j);
+                    yarr = x.split("-");
+                    y = Arrays.asList(yarr);
+                    attName = y.get(0) + " " + y.get(1);
+                    str.markAttendance(date69, y.get(0), y.get(1), false);
+                    j++;
+                    System.out.println(j);
+                }
+                else
+                {
+                    j++;
+                    System.out.println(j);
+                    z = 71;
+                    str.markAttendance(date69, y.get(0), y.get(1), false);
+                    flicker = false;
+                    z = 69;
+                }
+                if (j == attList2.size())
+                {
+                    mainPage();
+                }
+                System.out.println(j);
+                System.out.println("yeet");
+                flicker=true;
+                x = attList2.get(j);
+                yarr = x.split("-");
+                y = Arrays.asList(yarr);
+                attName = y.get(0) + " " + y.get(1);
+                firstName1.setText(attName);
             }
+            
             
             /**
              * Topic methods
              */
+            
             if (event.getSource() == addTopic) 
             {
                 frame.setContentPane(topicCreate);
@@ -814,15 +1010,114 @@ public class MyGui2 extends JFrame implements ActionListener
                 }
             }
             
-            
+            if (event.getSource() == topNext)
+            {
+                String daate = topDat420.getText();
+                Boolean good=true;
+                try
+                {
+                    String[] parts = daate.split("-");
+                    String year = parts[0];
+                    String month = parts[1];
+                    String day = parts[2];
+                }
+                catch(ArrayIndexOutOfBoundsException e)
+                {
+                    good=false;
+                    error.setText("Please ensure date contains only integers seperated with - (yyyy-mm-dd)");
+                }
+                if(topDat420.getText().equals(""))
+                {
+                    error.setText("Please fill out all fields");
+                    good=false;
+                }
+                else if (daate.length() != 10)
+                {
+                    good=false;
+                    error.setText("Please ensure date contains only integers seperated with - (yyyy-mm-dd)");
+                }
+                else if (daate.charAt(4) != '-' || daate.charAt(7) != '-')
+                {
+                    good=false;
+                    error.setText("Please ensure date contains only integers seperated with - (yyyy-mm-dd)");
+                } 
+                else if (good)
+                {
+                    //str.addAttendance(daate);
+                    topList1 = str.getTopic(topDat420.getText(), topTop420.getText());
+                    markTopicMethod();
+                }
+            }
             if(event.getSource() == topMarkPass)
             {
-                mark = "yes";
+                topDate69 = topDat420.getText();
+                if(k==0)
+                {
+                    topx = topList2.get(k);
+                    topyarr = topx.split("-");
+                    topy = Arrays.asList(topyarr);
+                    topName = topy.get(0) + " " + topy.get(1);
+                    str.markTopic(topDat420.getText(), topTop420.getText(), true);
+                    k++;
+                    System.out.println(k);
+                }
+                else
+                {
+                    k++;
+                    System.out.println(k);
+                    //z = 71;
+                    str.markTopic(topDat420.getText(), topTop420.getText(), true);
+                    topFlicker = false;
+                    //z = 69;
+                }
+                if (k == topList2.size())
+                {
+                    mainPage();
+                }
+                System.out.println(k);
+                System.out.println("yeet");
+                topFlicker=true;
+                topx = topList2.get(k);
+                topyarr = topx.split("-");
+                topy = Arrays.asList(topyarr);
+                topName = topy.get(0) + " " + topy.get(1);
+                tFirstName1.setText(topName);
             }
             
             if(event.getSource() == topMarkFail)
             {
-                mark = "no";
+                topDate69 = topDat420.getText();
+                if(k==0)
+                {
+                    topx = topList2.get(k);
+                    topyarr = topx.split("-");
+                    topy = Arrays.asList(topyarr);
+                    topName = topy.get(0) + " " + topy.get(1);
+                    str.markTopic(topDat420.getText(), topTop420.getText(), false);
+                    k++;
+                    System.out.println(k);
+                }
+                else
+                {
+                    k++;
+                    System.out.println(k);
+                    //z = 71;
+                    str.markTopic(topDat420.getText(), topTop420.getText(), false);
+                    topFlicker = false;
+                    //z = 69;
+                }
+                if (k == topList2.size())
+                {
+                    mainPage();
+                }
+                System.out.println(k);
+                System.out.println("yeet");
+                topFlicker=true;
+                topx = topList2.get(k);
+                topyarr = topx.split("-");
+                topy = Arrays.asList(topyarr);
+                topName = topy.get(0) + " " + topy.get(1);
+                tFirstName1.setText(topName);
             }
             
              if (event.getSource() == eNext) 
@@ -1088,14 +1383,26 @@ public class MyGui2 extends JFrame implements ActionListener
                         break;
                 }
             }
-            
+            if (event.getSource() == confirmS) 
+            {
+                if(iLast.getText().equals("")||iFirst.getText().equals(""))
+                {
+                    error.setText("Please fill out all fields");
+                } 
+                else
+                {
+                    String d=str.printStudents(iLast.getText(), iFirst.getText());
+                    reply.setText(d);
+                    
+                }
+            }
         }
 
     }
      
     public static void main(String[] args) 
     {
-        MyGui2 m = new MyGui2();
+        MyGui m = new MyGui();
         m.initialisation();
     }
 }
