@@ -3,8 +3,8 @@
 
 ---
 
-A repository of our final output for Systems Analysis and design  
-The final report is "Systems Analysis and Design.pdf"
+A repository of our final output for Systems Analysis and Design  
+- The final report is "Systems Analysis and Design.pdf"
 ---
 * the diagrams are located in the diagrams folder
 	- vsdx files are created using microsoft visio
